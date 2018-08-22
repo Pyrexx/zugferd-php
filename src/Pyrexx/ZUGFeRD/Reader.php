@@ -10,7 +10,7 @@ class Reader
 {
     private $serializer;
 
-    function __construct(Serializer $serializer)
+    public function __construct(Serializer $serializer)
     {
         $this->serializer = $serializer;
     }

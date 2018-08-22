@@ -1,5 +1,7 @@
 <?php
 
+use Pyrexx\ZUGFeRD\Helper\AnnotationRegistryHelper;
+
 class ReaderTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -8,9 +10,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function setupAnnotationRegistry()
     {
-        \Doctrine\Common\Annotations\AnnotationRegistry::registerAutoloadNamespace(
-            'JMS\Serializer\Annotation',
-            __DIR__ . '/../../../../vendor/jms/serializer/src');
+        AnnotationRegistryHelper::registerAutoloadNamespace(__DIR__ . '/../../../../vendor/jms/serializer/src');
     }
 
     public function testGetDocument()

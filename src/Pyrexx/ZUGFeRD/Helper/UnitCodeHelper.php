@@ -1,6 +1,7 @@
 <?php
 
 namespace Pyrexx\ZUGFeRD\Helper;
+
 use Pyrexx\ZUGFeRD\Model\UnitCode;
 
 /**
