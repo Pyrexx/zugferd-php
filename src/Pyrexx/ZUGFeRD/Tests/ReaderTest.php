@@ -10,7 +10,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function setupAnnotationRegistry()
     {
-        AnnotationRegistryHelper::registerAutoloadNamespace(__DIR__ . '/../../../../vendor/jms/serializer/src');
+        AnnotationRegistryHelper::registerAutoloadNamespace();
     }
 
     public function testGetDocument()
