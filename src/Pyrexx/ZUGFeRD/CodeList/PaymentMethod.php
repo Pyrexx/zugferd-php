@@ -19,7 +19,7 @@ class PaymentMethod
      */
     const BANK_TRANSFER = '31';
 
-    const NATIOANL_PRE_SEPA_TRANSFER = '42';
+    const NATIONAL_PRE_SEPA_TRANSFER = '42';
     const CREDIT_CARD = '48';
     const DIRECT_DEBIT = '49';
 
