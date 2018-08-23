@@ -9,22 +9,22 @@ namespace Pyrexx\ZUGFeRD\CodeList;
  */
 class PaymentMethod
 {
-    const NOT_DEFINED = 1;
-    const DEBIT_BY_AUTOMATIC_CLEARING_HOUSE = 3;
-    const CASH = 10;
-    const CHECK = 20;
+    const NOT_DEFINED = '1';
+    const DEBIT_BY_AUTOMATIC_CLEARING_HOUSE = '3';
+    const CASH = '10';
+    const CHECK = '20';
 
     /**
      * International bank transfer and national SEPA-Transfer
      */
-    const BANK_TRANSFER = 31;
+    const BANK_TRANSFER = '31';
 
-    const NATIOANL_PRE_SEPA_TRANSFER = 42;
-    const CREDIT_CARD =48;
-    const DIRECT_DEBIT = 49;
+    const NATIOANL_PRE_SEPA_TRANSFER = '42';
+    const CREDIT_CARD = '48';
+    const DIRECT_DEBIT = '49';
 
     /**
      * Amounts that two partners owe each other are compensated to avoid unnecessary payments.
      */
-    const BALANCE_COMPENSATION = 97;
+    const BALANCE_COMPENSATION = '97';
 }
