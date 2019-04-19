@@ -3,10 +3,10 @@
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\XmlElement;
+use Pyrexx\ZUGFeRD\CodeList\Currency;
 
 class MonetarySummation
 {
-
     /**
      * Total amount of all invoice positions.
      *
@@ -89,15 +89,16 @@ class MonetarySummation
      * @param double $duePayableAmount
      * @param string $currency
      */
-    public function __construct(float $lineTotal,
+    public function __construct(
+        float $lineTotal,
         $chargeTotal,
         $allowanceTotal,
         $taxBasisTotal,
         $taxTotal,
         $grandTotal,
         $duePayableAmount,
-        $currency = 'EUR')
-    {
+        $currency = Currency::EUR
+    ) {
         $this->lineTotal = new Amount($lineTotal, $currency);
         $this->chargeTotal = new Amount($chargeTotal, $currency);
         $this->allowanceTotal = new Amount($allowanceTotal, $currency);

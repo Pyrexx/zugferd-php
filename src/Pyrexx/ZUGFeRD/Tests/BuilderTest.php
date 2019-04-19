@@ -3,7 +3,13 @@
 namespace Pyrexx\ZUGFeRD\Tests;
 
 use Pyrexx\ZUGFeRD\Builder;
+use Pyrexx\ZUGFeRD\CodeList\Country;
+use Pyrexx\ZUGFeRD\CodeList\Currency;
+use Pyrexx\ZUGFeRD\CodeList\DateFormat;
 use Pyrexx\ZUGFeRD\CodeList\PaymentMethod;
+use Pyrexx\ZUGFeRD\CodeList\TaxCategory;
+use Pyrexx\ZUGFeRD\CodeList\TaxId;
+use Pyrexx\ZUGFeRD\CodeList\TaxType;
 use Pyrexx\ZUGFeRD\Helper\AnnotationRegistryHelper;
 use Pyrexx\ZUGFeRD\Model\Address;
 use Pyrexx\ZUGFeRD\Model\AllowanceCharge;
@@ -207,7 +213,7 @@ XML;
         $doc->getHeader()
             ->setId('RE1337')
             ->setName('RECHNUNG')
-            ->setDate(new Date(new \DateTime('20130305'), 102))
+            ->setDate(new Date(new \DateTime('20130305'), DateFormat::CALENDAR_DATE))
             ->addNote(new Note('Test Node 1'))
             ->addNote(new Note('Test Node 2'))
             ->addNote(new Note('Easybill GmbH
@@ -221,7 +227,7 @@ XML;
 
         $trade = $doc->getTrade();
 
-        $trade->setDelivery(new Delivery('20130305', 102));
+        $trade->setDelivery(new Delivery('20130305', DateFormat::CALENDAR_DATE));
 
         $this->setAgreement($trade);
         $this->setLineItem($trade);
@@ -243,15 +249,15 @@ XML;
         $trade->getAgreement()
             ->setSeller(
                 new TradeParty('Lieferant GmbH',
-                    new Address('80333', 'Lieferantenstraße 20', null, 'München', 'DE'),
+                    new Address('80333', 'Lieferantenstraße 20', null, 'München', Country::GERMANY),
                     array(
-                        new TaxRegistration('FC', '201/113/40209'),
-                        new TaxRegistration('VA', 'DE123456789')
+                        new TaxRegistration(TaxId::FISCAL_NUMBER, '201/113/40209'),
+                        new TaxRegistration(TaxId::VAT, 'DE123456789')
                     )
                 )
             )->setBuyer(
                 new TradeParty('Kunden AG Mitte',
-                    new Address('69876', 'Hans Muster', 'Kundenstraße 15', 'Frankfurt', 'DE')
+                    new Address('69876', 'Hans Muster', 'Kundenstraße 15', 'Frankfurt', Country::GERMANY)
                 )
             );
     }
@@ -263,17 +269,17 @@ XML;
     {
         $tradeAgreement = new SpecifiedTradeAgreement();
 
-        $grossPrice = new Price(9.90, 'EUR', false);
+        $grossPrice = new Price(9.90, Currency::EUR, false);
         $grossPrice
             ->addAllowanceCharge(new AllowanceCharge(false, 1.80));
 
         $tradeAgreement->setGrossPrice($grossPrice);
-        $tradeAgreement->setNetPrice(new Price(9.90, 'EUR', false));
+        $tradeAgreement->setNetPrice(new Price(9.90, Currency::EUR, false));
 
         $lineItemTradeTax = new TradeTax();
-        $lineItemTradeTax->setCode('VAT');
+        $lineItemTradeTax->setCode(TaxType::VAT);
         $lineItemTradeTax->setPercent(19.00);
-        $lineItemTradeTax->setCategory('S');
+        $lineItemTradeTax->setCategory(TaxCategory::STANDARD);
 
         $lineItemSettlement = new SpecifiedTradeSettlement();
         $lineItemSettlement
@@ -298,7 +304,7 @@ XML;
      */
     private function setSettlement(Trade $trade)
     {
-        $settlement = new Settlement('2013-471102', 'EUR');
+        $settlement = new Settlement('2013-471102', Currency::EUR);
         $settlement->setPaymentTerms(new PaymentTerms('Zahlbar innerhalb von 20 Tagen (bis zum 05.10.2016) unter Abzug von 3% Skonto (Zahlungsbetrag = 1.766,03 €). Bis zum 29.09.2016 ohne Abzug.', new Date('20130404')));
 
         $settlement->setPaymentMeans(new PaymentMeans());
@@ -309,22 +315,22 @@ XML;
             ->setPayeeInstitution(new CreditorFinancialInstitution('GENODEF1M04', '', ''));
 
         $tradeTax = new TradeTax();
-        $tradeTax->setCode('VAT');
+        $tradeTax->setCode(TaxType::VAT);
         $tradeTax->setPercent(7.00);
-        $tradeTax->setBasisAmount(new Amount(275.00, 'EUR'));
-        $tradeTax->setCalculatedAmount(new Amount(19.25, 'EUR'));
+        $tradeTax->setBasisAmount(new Amount(275.00, Currency::EUR));
+        $tradeTax->setCalculatedAmount(new Amount(19.25, Currency::EUR));
 
         $tradeTax2 = new TradeTax();
-        $tradeTax2->setCode('VAT');
+        $tradeTax2->setCode(TaxType::VAT);
         $tradeTax2->setPercent(19.00);
-        $tradeTax2->setBasisAmount(new Amount(198.00, 'EUR'));
-        $tradeTax2->setCalculatedAmount(new Amount(37.62, 'EUR'));
+        $tradeTax2->setBasisAmount(new Amount(198.00, Currency::EUR));
+        $tradeTax2->setCalculatedAmount(new Amount(37.62, Currency::EUR));
 
         $settlement
             ->addTradeTax($tradeTax)
             ->addTradeTax($tradeTax2)
             ->setMonetarySummation(
-                new MonetarySummation(198.00, 0.00, 0.00, 198.00, 37.62, 235.62, 235.62, 'EUR')
+                new MonetarySummation(198.00, 0.00, 0.00, 198.00, 37.62, 235.62, 235.62, Currency::EUR)
             );
 
         $trade->setSettlement($settlement);

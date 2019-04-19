@@ -3,10 +3,10 @@
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\XmlElement;
+use Pyrexx\ZUGFeRD\CodeList\DateFormat;
 
 class Date
 {
-
     /**
      * @var DateTime
      * @Type("Pyrexx\ZUGFeRD\Model\DateTime")
@@ -21,7 +21,7 @@ class Date
      * @param \DateTime|string $date
      * @param int              $format
      */
-    public function __construct($date, $format = 102)
+    public function __construct($date, $format = DateFormat::CALENDAR_DATE)
     {
         $this->date = new DateTime($date, $format);
     }
@@ -37,8 +37,8 @@ class Date
     /**
      * @return int
      */
-    public function getFormat() {
+    public function getFormat()
+    {
         return $this->date->getFormat();
     }
-
 }

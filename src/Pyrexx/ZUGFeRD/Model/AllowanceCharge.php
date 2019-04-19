@@ -1,5 +1,6 @@
 <?php namespace Pyrexx\ZUGFeRD\Model;
 
+use Pyrexx\ZUGFeRD\CodeList\Currency;
 use Pyrexx\ZUGFeRD\Model\Trade\Amount;
 use JMS\Serializer\Annotation as JMS;
 
@@ -10,7 +11,6 @@ use JMS\Serializer\Annotation as JMS;
  */
 class AllowanceCharge
 {
-
     /**
      * @var Indicator
      * @JMS\Type("Pyrexx\ZUGFeRD\Model\Indicator")
@@ -34,7 +34,7 @@ class AllowanceCharge
      * @param double $actualAmount
      * @param string $currency
      */
-    public function __construct($indicator, $actualAmount, $currency = 'EUR')
+    public function __construct($indicator, $actualAmount, $currency = Currency::EUR)
     {
         $this->indicator = new Indicator($indicator);
         $this->actualAmount = new Amount($actualAmount, $currency, false);
@@ -71,5 +71,4 @@ class AllowanceCharge
     {
         $this->actualAmount = $actualAmount;
     }
-
 }

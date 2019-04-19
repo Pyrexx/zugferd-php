@@ -3,10 +3,10 @@
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\XmlElement;
+use Pyrexx\ZUGFeRD\CodeList\DateFormat;
 
 class Delivery
 {
-
     /**
      * @var DeliveryChainEvent
      * @Type("Pyrexx\ZUGFeRD\Model\Trade\DeliveryChainEvent")
@@ -21,11 +21,10 @@ class Delivery
      * @param string $date
      * @param int    $format
      */
-    public function __construct($date = '', $format = 102)
+    public function __construct($date = '', $format = DateFormat::CALENDAR_DATE)
     {
         $this->chainEvent = new DeliveryChainEvent($date, $format);
     }
-
 
     /**
      * @return \Pyrexx\ZUGFeRD\Model\Trade\DeliveryChainEvent
@@ -42,6 +41,4 @@ class Delivery
     {
         $this->chainEvent = $chainEvent;
     }
-
-
 }
