@@ -1,10 +1,23 @@
 <?php
 
+namespace Pyrexx\ZUGFeRD\Tests;
+
+use Pyrexx\ZUGFeRD\CodeList\PaymentMethod;
 use Pyrexx\ZUGFeRD\Helper\AnnotationRegistryHelper;
+use Pyrexx\ZUGFeRD\Model\Date;
+use Pyrexx\ZUGFeRD\Model\Document;
+use Pyrexx\ZUGFeRD\Model\Header;
+use Pyrexx\ZUGFeRD\Model\Note;
+use Pyrexx\ZUGFeRD\Model\Trade\Agreement;
+use Pyrexx\ZUGFeRD\Model\Trade\Item\LineItem;
+use Pyrexx\ZUGFeRD\Model\Trade\Settlement;
+use Pyrexx\ZUGFeRD\Model\Trade\Trade;
+use Pyrexx\ZUGFeRD\Model\Trade\TradeParty;
+use Pyrexx\ZUGFeRD\Model\UnitCode;
+use Pyrexx\ZUGFeRD\Reader;
 
 class ReaderTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @before
      */
@@ -15,7 +28,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDocument()
     {
-
         $zugferdXML = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <rsm:CrossIndustryDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rsm="urn:ferd:CrossIndustryDocument:invoice:1p0" xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12" xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:15">
@@ -172,22 +184,22 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 XML;
 
 
-        $reader = \Pyrexx\ZUGFeRD\Reader::create();
+        $reader = Reader::create();
 
         $doc = $reader->getDocument($zugferdXML);
-        $this->assertInstanceOf('\Pyrexx\ZUGFeRD\Model\Document', $doc);
+        $this->assertInstanceOf(Document::class, $doc);
 
         $this->checkHeader($doc->getHeader());
         $this->checkTrade($doc->getTrade());
     }
 
-    private function checkHeader(\Pyrexx\ZUGFeRD\Model\Header $header)
+    private function checkHeader(Header $header)
     {
         $this->assertSame('RE1337', $header->getId());
         $this->assertSame('RECHNUNG', $header->getName());
         $this->assertSame('380', $header->getTypeCode());
 
-        $this->assertInstanceOf('\Pyrexx\ZUGFeRD\Model\Date', $header->getDate());
+        $this->assertInstanceOf(Date::class, $header->getDate());
         $this->assertSame(102, $header->getDate()->getFormat());
         $this->assertSame('20130305', $header->getDate()->getDate());
 
@@ -197,7 +209,7 @@ XML;
         $cnt = 0;
         foreach ($notes as $note) {
             $cnt++;
-            $this->assertInstanceOf('\Pyrexx\ZUGFeRD\Model\Note', $note);
+            $this->assertInstanceOf(Note::class, $note);
 
             if ($cnt === 3) {
                 $this->assertSame('Easybill GmbH
@@ -215,9 +227,9 @@ XML;
         }
     }
 
-    private function checkTrade(\Pyrexx\ZUGFeRD\Model\Trade\Trade $trade)
+    private function checkTrade(Trade $trade)
     {
-        $this->assertInstanceOf('\Pyrexx\ZUGFeRD\Model\Trade\Trade', $trade);
+        $this->assertInstanceOf(Trade::class, $trade);
 
         $this->checkAgreement($trade->getAgreement());
         $this->checkTradeSettlement($trade->getSettlement());
@@ -231,13 +243,13 @@ XML;
         $this->checkLineItem($lineItems[0]);
     }
 
-    private function checkAgreement(\Pyrexx\ZUGFeRD\Model\Trade\Agreement $agreement)
+    private function checkAgreement(Agreement $agreement)
     {
         $seller = $agreement->getSeller();
         $buyer = $agreement->getBuyer();
-        $this->assertInstanceOf('\Pyrexx\ZUGFeRD\Model\Trade\Agreement', $agreement);
-        $this->assertInstanceOf('\Pyrexx\ZUGFeRD\Model\Trade\TradeParty', $seller);
-        $this->assertInstanceOf('\Pyrexx\ZUGFeRD\Model\Trade\TradeParty', $buyer);
+        $this->assertInstanceOf(Agreement::class, $agreement);
+        $this->assertInstanceOf(TradeParty::class, $seller);
+        $this->assertInstanceOf(TradeParty::class, $buyer);
 
         $sellerAddress = $seller->getAddress();
         $this->assertSame('Lieferant GmbH', $seller->getName());
@@ -270,13 +282,13 @@ XML;
         $this->assertEmpty($buyer->getTaxRegistrations());
     }
 
-    private function checkTradeSettlement(\Pyrexx\ZUGFeRD\Model\Trade\Settlement $settlement)
+    private function checkTradeSettlement(Settlement $settlement)
     {
         $this->assertSame('2013-471102', $settlement->getPaymentReference());
         $this->assertSame('EUR', $settlement->getCurrency());
 
         $paymentMeans = $settlement->getPaymentMeans();
-        $this->assertSame('31', $paymentMeans->getCode());
+        $this->assertSame(PaymentMethod::BANK_TRANSFER, $paymentMeans->getCode());
         $this->assertSame('Überweisung', $paymentMeans->getInformation());
 
         $payeeAccount = $paymentMeans->getPayeeAccount();
@@ -333,7 +345,7 @@ XML;
         $this->assertSame(102, $paymentTerms->getDueDate()->getFormat());
     }
 
-    private function checkLineItem(\Pyrexx\ZUGFeRD\Model\Trade\Item\LineItem $lineItem)
+    private function checkLineItem(LineItem $lineItem)
     {
         $lineDocument = $lineItem->getLineDocument();
         $lineDocumentNotes = $lineDocument->getNotes();
@@ -358,7 +370,7 @@ XML;
         $this->assertSame(9.90, $agreement->getNetPrice()->getAmount()->getValue());
         $this->assertSame('EUR', $agreement->getNetPrice()->getAmount()->getCurrency());
 
-        $this->assertSame('C62', $lineItem->getDelivery()->getBilledQuantity()->getUnitCode());
+        $this->assertSame(UnitCode::PIECE, $lineItem->getDelivery()->getBilledQuantity()->getUnitCode());
         $this->assertSame(20.0000, $lineItem->getDelivery()->getBilledQuantity()->getValue());
 
         $settlement = $lineItem->getSettlement();
@@ -375,5 +387,4 @@ XML;
         $this->assertSame('TB100A4', $product->getSellerAssignedID());
         $this->assertSame('Trennblätter A4', $product->getName());
     }
-
 }
