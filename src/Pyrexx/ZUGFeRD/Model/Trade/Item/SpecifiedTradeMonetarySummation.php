@@ -1,5 +1,6 @@
 <?php namespace Pyrexx\ZUGFeRD\Model\Trade\Item;
 
+use Pyrexx\ZUGFeRD\CodeList\Currency;
 use Pyrexx\ZUGFeRD\Model\Trade\Amount;
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Type;
@@ -7,7 +8,6 @@ use JMS\Serializer\Annotation\XmlElement;
 
 class SpecifiedTradeMonetarySummation
 {
-
     /**
      * @var Amount
      * @Type("Pyrexx\ZUGFeRD\Model\Trade\Amount")
@@ -22,7 +22,7 @@ class SpecifiedTradeMonetarySummation
      * @param double $value
      * @param string $currency
      */
-    public function __construct($value, $currency = 'EUR')
+    public function __construct($value, $currency = Currency::EUR)
     {
         $this->totalAmount = new Amount($value, $currency);
     }
@@ -42,6 +42,4 @@ class SpecifiedTradeMonetarySummation
     {
         $this->totalAmount = $totalAmount;
     }
-
-
 }

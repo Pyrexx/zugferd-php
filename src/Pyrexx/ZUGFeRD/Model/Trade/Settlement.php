@@ -1,5 +1,6 @@
 <?php namespace Pyrexx\ZUGFeRD\Model\Trade;
 
+use Pyrexx\ZUGFeRD\CodeList\Currency;
 use Pyrexx\ZUGFeRD\Model\Trade\Tax\TradeTax;
 use JMS\Serializer\Annotation\AccessorOrder;
 use JMS\Serializer\Annotation\SerializedName;
@@ -12,7 +13,6 @@ use JMS\Serializer\Annotation\XmlList;
  */
 class Settlement
 {
-
     /**
      * @var string
      * @Type("string")
@@ -66,7 +66,7 @@ class Settlement
      * @param string $paymentReference
      * @param string $currency
      */
-    public function __construct($paymentReference = '', $currency = 'EUR')
+    public function __construct($paymentReference = '', $currency = Currency::EUR)
     {
         $this->paymentReference = $paymentReference;
         $this->currency = $currency;
@@ -186,5 +186,4 @@ class Settlement
         $this->paymentTerms = $paymentTerms;
         return $this;
     }
-
 }

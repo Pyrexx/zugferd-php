@@ -1,10 +1,47 @@
 <?php
 
+namespace Pyrexx\ZUGFeRD\Tests;
+
+use Pyrexx\ZUGFeRD\Builder;
+use Pyrexx\ZUGFeRD\CodeList\Country;
+use Pyrexx\ZUGFeRD\CodeList\Currency;
+use Pyrexx\ZUGFeRD\CodeList\DateFormat;
+use Pyrexx\ZUGFeRD\CodeList\PaymentMethod;
+use Pyrexx\ZUGFeRD\CodeList\TaxCategory;
+use Pyrexx\ZUGFeRD\CodeList\TaxId;
+use Pyrexx\ZUGFeRD\CodeList\TaxType;
 use Pyrexx\ZUGFeRD\Helper\AnnotationRegistryHelper;
+use Pyrexx\ZUGFeRD\Model\Address;
+use Pyrexx\ZUGFeRD\Model\AllowanceCharge;
+use Pyrexx\ZUGFeRD\Model\Date;
+use Pyrexx\ZUGFeRD\Model\Document;
+use Pyrexx\ZUGFeRD\Model\Note;
+use Pyrexx\ZUGFeRD\Model\Trade\Amount;
+use Pyrexx\ZUGFeRD\Model\Trade\CreditorFinancialAccount;
+use Pyrexx\ZUGFeRD\Model\Trade\CreditorFinancialInstitution;
+use Pyrexx\ZUGFeRD\Model\Trade\Delivery;
+use Pyrexx\ZUGFeRD\Model\Trade\Item\LineDocument;
+use Pyrexx\ZUGFeRD\Model\Trade\Item\LineItem;
+use Pyrexx\ZUGFeRD\Model\Trade\Item\Price;
+use Pyrexx\ZUGFeRD\Model\Trade\Item\Product;
+use Pyrexx\ZUGFeRD\Model\Trade\Item\Quantity;
+use Pyrexx\ZUGFeRD\Model\Trade\Item\SpecifiedTradeAgreement;
+use Pyrexx\ZUGFeRD\Model\Trade\Item\SpecifiedTradeDelivery;
+use Pyrexx\ZUGFeRD\Model\Trade\Item\SpecifiedTradeMonetarySummation;
+use Pyrexx\ZUGFeRD\Model\Trade\Item\SpecifiedTradeSettlement;
+use Pyrexx\ZUGFeRD\Model\Trade\MonetarySummation;
+use Pyrexx\ZUGFeRD\Model\Trade\PaymentMeans;
+use Pyrexx\ZUGFeRD\Model\Trade\PaymentTerms;
+use Pyrexx\ZUGFeRD\Model\Trade\Settlement;
+use Pyrexx\ZUGFeRD\Model\Trade\Tax\TaxRegistration;
+use Pyrexx\ZUGFeRD\Model\Trade\Tax\TradeTax;
+use Pyrexx\ZUGFeRD\Model\Trade\Trade;
+use Pyrexx\ZUGFeRD\Model\Trade\TradeParty;
+use Pyrexx\ZUGFeRD\Model\UnitCode;
+use Pyrexx\ZUGFeRD\SchemaValidator;
 
 class BuilderTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @before
      */
@@ -15,7 +52,6 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testGetXML()
     {
-
         $zugferdXML = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <rsm:CrossIndustryDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rsm="urn:ferd:CrossIndustryDocument:invoice:1p0" xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12" xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:15">
@@ -171,14 +207,16 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 </rsm:CrossIndustryDocument>
 
 XML;
-        $doc = new \Pyrexx\ZUGFeRD\Model\Document(\Pyrexx\ZUGFeRD\Model\Document::TYPE_COMFORT);
+
+
+        $doc = new Document(Document::TYPE_COMFORT);
         $doc->getHeader()
             ->setId('RE1337')
             ->setName('RECHNUNG')
-            ->setDate(new \Pyrexx\ZUGFeRD\Model\Date(new \DateTime('20130305'), 102))
-            ->addNote(new \Pyrexx\ZUGFeRD\Model\Note('Test Node 1'))
-            ->addNote(new \Pyrexx\ZUGFeRD\Model\Note('Test Node 2'))
-            ->addNote(new \Pyrexx\ZUGFeRD\Model\Note('Easybill GmbH
+            ->setDate(new Date(new \DateTime('20130305'), DateFormat::CALENDAR_DATE))
+            ->addNote(new Note('Test Node 1'))
+            ->addNote(new Note('Test Node 2'))
+            ->addNote(new Note('Easybill GmbH
             Düsselstr. 21
             41564 Kaarst
             
@@ -189,113 +227,112 @@ XML;
 
         $trade = $doc->getTrade();
 
-        $trade->setDelivery(new \Pyrexx\ZUGFeRD\Model\Trade\Delivery('20130305', 102));
+        $trade->setDelivery(new Delivery('20130305', DateFormat::CALENDAR_DATE));
 
         $this->setAgreement($trade);
         $this->setLineItem($trade);
         $this->setSettlement($trade);
 
-        $builder = \Pyrexx\ZUGFeRD\Builder::create();
+        $builder = Builder::create();
         $xml = $builder->getXML($doc);
 
         $this->assertSame($zugferdXML, $xml);
 
-        \Pyrexx\ZUGFeRD\SchemaValidator::isValid($xml);
+        SchemaValidator::isValid($xml);
     }
 
     /**
-     * @param \Pyrexx\ZUGFeRD\Model\Trade\Trade $trade
+     * @param Trade $trade
      */
-    private function setAgreement(\Pyrexx\ZUGFeRD\Model\Trade\Trade $trade)
+    private function setAgreement(Trade $trade)
     {
         $trade->getAgreement()
             ->setSeller(
-                new \Pyrexx\ZUGFeRD\Model\Trade\TradeParty('Lieferant GmbH',
-                    new \Pyrexx\ZUGFeRD\Model\Address('80333', 'Lieferantenstraße 20', null, 'München', 'DE'),
+                new TradeParty('Lieferant GmbH',
+                    new Address('80333', 'Lieferantenstraße 20', null, 'München', Country::GERMANY),
                     array(
-                        new \Pyrexx\ZUGFeRD\Model\Trade\Tax\TaxRegistration('FC', '201/113/40209'),
-                        new \Pyrexx\ZUGFeRD\Model\Trade\Tax\TaxRegistration('VA', 'DE123456789')
+                        new TaxRegistration(TaxId::FISCAL_NUMBER, '201/113/40209'),
+                        new TaxRegistration(TaxId::VAT, 'DE123456789')
                     )
                 )
             )->setBuyer(
-                new \Pyrexx\ZUGFeRD\Model\Trade\TradeParty('Kunden AG Mitte',
-                    new \Pyrexx\ZUGFeRD\Model\Address('69876', 'Hans Muster', 'Kundenstraße 15', 'Frankfurt', 'DE')
+                new TradeParty('Kunden AG Mitte',
+                    new Address('69876', 'Hans Muster', 'Kundenstraße 15', 'Frankfurt', Country::GERMANY)
                 )
             );
     }
 
     /**
-     * @param \Pyrexx\ZUGFeRD\Model\Trade\Trade $trade
+     * @param Trade $trade
      */
-    private function setLineItem(\Pyrexx\ZUGFeRD\Model\Trade\Trade $trade)
+    private function setLineItem(Trade $trade)
     {
-        $tradeAgreement = new \Pyrexx\ZUGFeRD\Model\Trade\Item\SpecifiedTradeAgreement();
+        $tradeAgreement = new SpecifiedTradeAgreement();
 
-        $grossPrice = new \Pyrexx\ZUGFeRD\Model\Trade\Item\Price(9.90, 'EUR', false);
+        $grossPrice = new Price(9.90, Currency::EUR, false);
         $grossPrice
-            ->addAllowanceCharge(new \Pyrexx\ZUGFeRD\Model\AllowanceCharge(false, 1.80));
+            ->addAllowanceCharge(new AllowanceCharge(false, 1.80));
 
         $tradeAgreement->setGrossPrice($grossPrice);
-        $tradeAgreement->setNetPrice(new \Pyrexx\ZUGFeRD\Model\Trade\Item\Price(9.90, 'EUR', false));
+        $tradeAgreement->setNetPrice(new Price(9.90, Currency::EUR, false));
 
-        $lineItemTradeTax = new \Pyrexx\ZUGFeRD\Model\Trade\Tax\TradeTax();
-        $lineItemTradeTax->setCode('VAT');
+        $lineItemTradeTax = new TradeTax();
+        $lineItemTradeTax->setCode(TaxType::VAT);
         $lineItemTradeTax->setPercent(19.00);
-        $lineItemTradeTax->setCategory('S');
+        $lineItemTradeTax->setCategory(TaxCategory::STANDARD);
 
-        $lineItemSettlement = new \Pyrexx\ZUGFeRD\Model\Trade\Item\SpecifiedTradeSettlement();
+        $lineItemSettlement = new SpecifiedTradeSettlement();
         $lineItemSettlement
             ->setTradeTax($lineItemTradeTax)
-            ->setMonetarySummation(new \Pyrexx\ZUGFeRD\Model\Trade\Item\SpecifiedTradeMonetarySummation(198.00));
+            ->setMonetarySummation(new SpecifiedTradeMonetarySummation(198.00));
 
-        $lineItem = new \Pyrexx\ZUGFeRD\Model\Trade\Item\LineItem();
+        $lineItem = new LineItem();
         $lineItem
             ->setTradeAgreement($tradeAgreement)
-            ->setDelivery(new \Pyrexx\ZUGFeRD\Model\Trade\Item\SpecifiedTradeDelivery(new \Pyrexx\ZUGFeRD\Model\Trade\Item\Quantity('C62', 20.00)))
+            ->setDelivery(new SpecifiedTradeDelivery(new Quantity(UnitCode::PIECE, 20.00)))
             ->setSettlement($lineItemSettlement)
-            ->setProduct(new \Pyrexx\ZUGFeRD\Model\Trade\Item\Product('TB100A4', 'Trennblätter A4'))
-            ->setLineDocument(new \Pyrexx\ZUGFeRD\Model\Trade\Item\LineDocument('1'))
+            ->setProduct(new Product('TB100A4', 'Trennblätter A4'))
+            ->setLineDocument(new LineDocument('1'))
             ->getLineDocument()
-            ->addNote(new \Pyrexx\ZUGFeRD\Model\Note('Testcontent in einem LineDocument'));
+            ->addNote(new Note('Testcontent in einem LineDocument'));
 
         $trade->addLineItem($lineItem);
     }
 
     /**
-     * @param \Pyrexx\ZUGFeRD\Model\Trade\Trade $trade
+     * @param Trade $trade
      */
-    private function setSettlement(\Pyrexx\ZUGFeRD\Model\Trade\Trade $trade)
+    private function setSettlement(Trade $trade)
     {
-        $settlement = new \Pyrexx\ZUGFeRD\Model\Trade\Settlement('2013-471102', 'EUR');
-        $settlement->setPaymentTerms(new \Pyrexx\ZUGFeRD\Model\Trade\PaymentTerms('Zahlbar innerhalb von 20 Tagen (bis zum 05.10.2016) unter Abzug von 3% Skonto (Zahlungsbetrag = 1.766,03 €). Bis zum 29.09.2016 ohne Abzug.', new \Pyrexx\ZUGFeRD\Model\Date('20130404')));
+        $settlement = new Settlement('2013-471102', Currency::EUR);
+        $settlement->setPaymentTerms(new PaymentTerms('Zahlbar innerhalb von 20 Tagen (bis zum 05.10.2016) unter Abzug von 3% Skonto (Zahlungsbetrag = 1.766,03 €). Bis zum 29.09.2016 ohne Abzug.', new Date('20130404')));
 
-        $settlement->setPaymentMeans(new \Pyrexx\ZUGFeRD\Model\Trade\PaymentMeans());
+        $settlement->setPaymentMeans(new PaymentMeans());
         $settlement->getPaymentMeans()
-            ->setCode('31')
+            ->setCode(PaymentMethod::BANK_TRANSFER)
             ->setInformation('Überweisung')
-            ->setPayeeAccount(new \Pyrexx\ZUGFeRD\Model\Trade\CreditorFinancialAccount('DE08700901001234567890', '', ''))
-            ->setPayeeInstitution(new \Pyrexx\ZUGFeRD\Model\Trade\CreditorFinancialInstitution('GENODEF1M04', '', ''));
+            ->setPayeeAccount(new CreditorFinancialAccount('DE08700901001234567890', '', ''))
+            ->setPayeeInstitution(new CreditorFinancialInstitution('GENODEF1M04', '', ''));
 
-        $tradeTax = new \Pyrexx\ZUGFeRD\Model\Trade\Tax\TradeTax();
-        $tradeTax->setCode('VAT');
+        $tradeTax = new TradeTax();
+        $tradeTax->setCode(TaxType::VAT);
         $tradeTax->setPercent(7.00);
-        $tradeTax->setBasisAmount(new \Pyrexx\ZUGFeRD\Model\Trade\Amount(275.00, 'EUR'));
-        $tradeTax->setCalculatedAmount(new \Pyrexx\ZUGFeRD\Model\Trade\Amount(19.25, 'EUR'));
+        $tradeTax->setBasisAmount(new Amount(275.00, Currency::EUR));
+        $tradeTax->setCalculatedAmount(new Amount(19.25, Currency::EUR));
 
-        $tradeTax2 = new \Pyrexx\ZUGFeRD\Model\Trade\Tax\TradeTax();
-        $tradeTax2->setCode('VAT');
+        $tradeTax2 = new TradeTax();
+        $tradeTax2->setCode(TaxType::VAT);
         $tradeTax2->setPercent(19.00);
-        $tradeTax2->setBasisAmount(new \Pyrexx\ZUGFeRD\Model\Trade\Amount(198.00, 'EUR'));
-        $tradeTax2->setCalculatedAmount(new \Pyrexx\ZUGFeRD\Model\Trade\Amount(37.62, 'EUR'));
+        $tradeTax2->setBasisAmount(new Amount(198.00, Currency::EUR));
+        $tradeTax2->setCalculatedAmount(new Amount(37.62, Currency::EUR));
 
         $settlement
             ->addTradeTax($tradeTax)
             ->addTradeTax($tradeTax2)
             ->setMonetarySummation(
-                new \Pyrexx\ZUGFeRD\Model\Trade\MonetarySummation(198.00, 0.00, 0.00, 198.00, 37.62, 235.62, 235.62, 'EUR')
+                new MonetarySummation(198.00, 0.00, 0.00, 198.00, 37.62, 235.62, 235.62, Currency::EUR)
             );
 
         $trade->setSettlement($settlement);
     }
-
 }

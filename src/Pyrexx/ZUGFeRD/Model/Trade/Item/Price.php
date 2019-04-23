@@ -1,12 +1,12 @@
 <?php namespace Pyrexx\ZUGFeRD\Model\Trade\Item;
 
+use Pyrexx\ZUGFeRD\CodeList\Currency;
 use Pyrexx\ZUGFeRD\Model\AllowanceCharge;
 use Pyrexx\ZUGFeRD\Model\Trade\Amount;
 use JMS\Serializer\Annotation as JMS;
 
 class Price
 {
-
     /**
      * @var Amount
      * @JMS\Type("Pyrexx\ZUGFeRD\Model\Trade\Amount")
@@ -29,7 +29,7 @@ class Price
      * @param string $currency
      * @param bool   $isSum
      */
-    public function __construct($value, $currency = 'EUR', $isSum = true)
+    public function __construct($value, $currency = Currency::EUR, $isSum = true)
     {
         $this->amount = new Amount($value, $currency, $isSum);
     }
@@ -68,6 +68,4 @@ class Price
         $this->allowanceCharges[] = $allowanceCharge;
         return $this;
     }
-
-
 }

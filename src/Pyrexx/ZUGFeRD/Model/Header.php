@@ -4,6 +4,7 @@ use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\XmlElement;
 use JMS\Serializer\Annotation\XmlList;
+use Pyrexx\ZUGFeRD\CodeList\DocumentType;
 
 class Header
 {
@@ -29,7 +30,7 @@ class Header
      * @XmlElement(cdata=false,namespace="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12")
      * @SerializedName("TypeCode")
      */
-    private $typeCode = '380';
+    private $typeCode = DocumentType::COMMERCIAL_INVOICE;
 
     /**
      * @var Date
@@ -103,7 +104,6 @@ class Header
         return $this;
     }
 
-
     /**
      * @param Note $note
      *
@@ -142,5 +142,4 @@ class Header
 
         return $this;
     }
-
 }

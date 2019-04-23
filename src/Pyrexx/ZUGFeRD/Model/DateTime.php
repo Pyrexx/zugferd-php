@@ -1,6 +1,7 @@
 <?php namespace Pyrexx\ZUGFeRD\Model;
 
 use JMS\Serializer\Annotation as JMS;
+use Pyrexx\ZUGFeRD\CodeList\DateFormat;
 
 class DateTime
 {
@@ -23,11 +24,11 @@ class DateTime
      * @param \DateTime|string $time
      * @param int              $format
      */
-    public function __construct($time, $format = 102)
+    public function __construct($time, $format = DateFormat::CALENDAR_DATE)
     {
 
-        if ($format !== 102 && $format !== 610 && $format !== 616) {
-            throw new \RuntimeException('Invalid format! Please set it to: 102, 610 or 616');
+        if ($format !== DateFormat::CALENDAR_DATE && $format !== DateFormat::MONTH_DATE && $format !== DateFormat::WEEK_DATE) {
+            throw new \RuntimeException('Invalid format! Please set it to: '.DateFormat::CALENDAR_DATE.', '.DateFormat::MONTH_DATE.' or '.DateFormat::WEEK_DATE);
         }
 
         if ($time instanceof \DateTime) {
@@ -39,15 +40,15 @@ class DateTime
         }
 
         switch ($format) {
-            case 616:
+            case DateFormat::WEEK_DATE:
                 $formatStr = 'YW';
                 break;
 
-            case 610:
+            case DateFormat::MONTH_DATE:
                 $formatStr = 'Ym';
                 break;
 
-            case 102:
+            case DateFormat::CALENDAR_DATE:
             default:
                 $formatStr = 'Ymd';
 
@@ -72,5 +73,4 @@ class DateTime
     {
         return $this->time;
     }
-
 }
