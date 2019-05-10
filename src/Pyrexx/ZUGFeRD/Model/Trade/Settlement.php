@@ -70,7 +70,6 @@ class Settlement
     {
         $this->paymentReference = $paymentReference;
         $this->currency = $currency;
-        $this->paymentMeans = new PaymentMeans();
     }
 
     /**
