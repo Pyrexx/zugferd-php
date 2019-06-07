@@ -1,6 +1,7 @@
 <?php namespace Pyrexx\ZUGFeRD\Model\Trade;
 
 use Pyrexx\ZUGFeRD\CodeList\Currency;
+use Pyrexx\ZUGFeRD\Model\AllowanceCharge;
 use Pyrexx\ZUGFeRD\Model\Trade\Tax\TradeTax;
 use JMS\Serializer\Annotation\AccessorOrder;
 use JMS\Serializer\Annotation\SerializedName;
@@ -9,7 +10,7 @@ use JMS\Serializer\Annotation\XmlElement;
 use JMS\Serializer\Annotation\XmlList;
 
 /**
- * @AccessorOrder("custom", custom = {"paymentReference", "currency", "paymentMeans", "tradeTaxes", "logisticsService", "paymentTerms", "monetarySummation"})
+ * @AccessorOrder("custom", custom = {"paymentReference", "currency", "paymentMeans", "tradeTaxes", "allowanceCharges", "logisticsService", "paymentTerms", "monetarySummation"})
  */
 class Settlement
 {
@@ -43,6 +44,13 @@ class Settlement
      * @XmlList(inline = true, entry = "ApplicableTradeTax", namespace="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12")
      */
     private $tradeTaxes = array();
+
+    /**
+     * @var AllowanceCharge[]
+     * @Type("array<Pyrexx\ZUGFeRD\Model\AllowanceCharge>")
+     * @XmlList(inline=true, entry="SpecifiedTradeAllowanceCharge", namespace="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12")
+     */
+    private $allowanceCharges = [];
 
     /**
      * @var SpecifiedLogisticsServiceCharge
@@ -153,6 +161,26 @@ class Settlement
     public function addTradeTax(TradeTax $tradeTax)
     {
         $this->tradeTaxes[] = $tradeTax;
+        return $this;
+    }
+
+    /**
+     * @return AllowanceCharge[]
+     */
+    public function getAllowanceCharges(): array
+    {
+        return $this->allowanceCharges;
+    }
+
+    /**
+     * @param AllowanceCharge $allowanceCharge
+     *
+     * @return Settlement
+     */
+    public function addAllowanceCharge(AllowanceCharge $allowanceCharge): Settlement
+    {
+        $this->allowanceCharges[] = $allowanceCharge;
+
         return $this;
     }
 
