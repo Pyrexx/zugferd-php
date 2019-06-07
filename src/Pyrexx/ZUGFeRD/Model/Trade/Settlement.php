@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation\XmlElement;
 use JMS\Serializer\Annotation\XmlList;
 
 /**
- * @AccessorOrder("custom", custom = {"paymentReference", "currency", "paymentMeans", "tradeTaxes", "paymentTerms", "monetarySummation"})
+ * @AccessorOrder("custom", custom = {"paymentReference", "currency", "paymentMeans", "tradeTaxes", "logisticsService", "paymentTerms", "monetarySummation"})
  */
 class Settlement
 {
@@ -45,12 +45,12 @@ class Settlement
     private $tradeTaxes = array();
 
     /**
-     * @var MonetarySummation
-     * @Type("Pyrexx\ZUGFeRD\Model\Trade\MonetarySummation")
-     * @XmlElement(cdata = false, namespace = "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12")
-     * @SerializedName("SpecifiedTradeSettlementMonetarySummation")
+     * @var SpecifiedLogisticsServiceCharge
+     * @Type("Pyrexx\ZUGFeRD\Model\Trade\SpecifiedLogisticsServiceCharge")
+     * @XmlElement(cdata=false, namespace="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12")
+     * @SerializedName("SpecifiedLogisticsServiceCharge")
      */
-    private $monetarySummation;
+    private $logisticsService;
 
     /**
      * @var PaymentTerms
@@ -59,6 +59,14 @@ class Settlement
      * @SerializedName("SpecifiedTradePaymentTerms")
      */
     private $paymentTerms;
+
+    /**
+     * @var MonetarySummation
+     * @Type("Pyrexx\ZUGFeRD\Model\Trade\MonetarySummation")
+     * @XmlElement(cdata=false, namespace="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12")
+     * @SerializedName("SpecifiedTradeSettlementMonetarySummation")
+     */
+    private $monetarySummation;
 
     /**
      * Settlement constructor.
@@ -149,21 +157,22 @@ class Settlement
     }
 
     /**
-     * @return \Pyrexx\ZUGFeRD\Model\Trade\MonetarySummation
+     * @return SpecifiedLogisticsServiceCharge
      */
-    public function getMonetarySummation()
+    public function getLogisticsService(): SpecifiedLogisticsServiceCharge
     {
-        return $this->monetarySummation;
+        return $this->logisticsService;
     }
 
     /**
-     * @param \Pyrexx\ZUGFeRD\Model\Trade\MonetarySummation $monetarySummation
+     * @param SpecifiedLogisticsServiceCharge $logisticsService
      *
-     * @return self
+     * @return Settlement
      */
-    public function setMonetarySummation($monetarySummation)
+    public function setLogisticsService(SpecifiedLogisticsServiceCharge $logisticsService): Settlement
     {
-        $this->monetarySummation = $monetarySummation;
+        $this->logisticsService = $logisticsService;
+
         return $this;
     }
 
@@ -183,6 +192,26 @@ class Settlement
     public function setPaymentTerms($paymentTerms)
     {
         $this->paymentTerms = $paymentTerms;
+        return $this;
+    }
+
+    /**
+     * @return MonetarySummation
+     */
+    public function getMonetarySummation(): MonetarySummation
+    {
+        return $this->monetarySummation;
+    }
+
+    /**
+     * @param MonetarySummation $monetarySummation
+     *
+     * @return Settlement
+     */
+    public function setMonetarySummation(MonetarySummation $monetarySummation): Settlement
+    {
+        $this->monetarySummation = $monetarySummation;
+
         return $this;
     }
 }
