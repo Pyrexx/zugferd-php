@@ -58,7 +58,7 @@ class Settlement
      * @XmlElement(cdata=false, namespace="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12")
      * @SerializedName("SpecifiedLogisticsServiceCharge")
      */
-    private $logisticsService;
+    private $logisticsServiceCharge;
 
     /**
      * @var PaymentTerms
@@ -187,19 +187,19 @@ class Settlement
     /**
      * @return SpecifiedLogisticsServiceCharge
      */
-    public function getLogisticsService(): SpecifiedLogisticsServiceCharge
+    public function getLogisticsServiceCharge(): SpecifiedLogisticsServiceCharge
     {
-        return $this->logisticsService;
+        return $this->logisticsServiceCharge;
     }
 
     /**
-     * @param SpecifiedLogisticsServiceCharge $logisticsService
+     * @param SpecifiedLogisticsServiceCharge $logisticsServiceCharge
      *
      * @return Settlement
      */
-    public function setLogisticsService(SpecifiedLogisticsServiceCharge $logisticsService): Settlement
+    public function setLogisticsServiceCharge(SpecifiedLogisticsServiceCharge $logisticsServiceCharge): Settlement
     {
-        $this->logisticsService = $logisticsService;
+        $this->logisticsServiceCharge = $logisticsServiceCharge;
 
         return $this;
     }
