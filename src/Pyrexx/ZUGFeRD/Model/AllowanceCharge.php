@@ -1,8 +1,9 @@
 <?php namespace Pyrexx\ZUGFeRD\Model;
 
+use JMS\Serializer\Annotation as JMS;
 use Pyrexx\ZUGFeRD\CodeList\Currency;
 use Pyrexx\ZUGFeRD\Model\Trade\Amount;
-use JMS\Serializer\Annotation as JMS;
+use Pyrexx\ZUGFeRD\Model\Trade\Tax\TradeTax;
 
 /**
  * Class AllowanceCharge
@@ -26,6 +27,22 @@ class AllowanceCharge
      * @JMS\SerializedName("ActualAmount")
      */
     private $actualAmount;
+
+    /**
+     * @var string
+     * @JMS\Type("string")
+     * @JMS\XmlElement(cdata=false, namespace="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12")
+     * @JMS\SerializedName("Reason")
+     */
+    private $reason;
+
+    /**
+     * @var TradeTax
+     * @JMS\Type("Pyrexx\ZUGFeRD\Model\Trade\Tax\TradeTax")
+     * @JMS\XmlElement(cdata=false, namespace="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12")
+     * @JMS\SerializedName("CategoryTradeTax")
+     */
+    private $categoryTradeTax;
 
     /**
      * AllowanceCharge constructor.
@@ -70,5 +87,45 @@ class AllowanceCharge
     public function setActualAmount($actualAmount)
     {
         $this->actualAmount = $actualAmount;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReason(): string
+    {
+        return $this->reason;
+    }
+
+    /**
+     * @param string $reason
+     *
+     * @return AllowanceCharge
+     */
+    public function setReason(string $reason): AllowanceCharge
+    {
+        $this->reason = $reason;
+
+        return $this;
+    }
+
+    /**
+     * @return TradeTax
+     */
+    public function getCategoryTradeTax(): TradeTax
+    {
+        return $this->categoryTradeTax;
+    }
+
+    /**
+     * @param TradeTax $categoryTradeTax
+     *
+     * @return AllowanceCharge
+     */
+    public function setCategoryTradeTax(TradeTax $categoryTradeTax): AllowanceCharge
+    {
+        $this->categoryTradeTax = $categoryTradeTax;
+
+        return $this;
     }
 }
